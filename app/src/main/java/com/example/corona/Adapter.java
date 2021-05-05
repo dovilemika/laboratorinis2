@@ -12,10 +12,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private Context context;
+public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> { //Adapter plaplecia recycleViewadapter klase
+    private Context context;// gauname is search activity lango
     private LayoutInflater inflater;
-    List<Margarita> data;
+    List<Margarita> data; //siuos duomenis perduosime adapteriui per konstruktoriu
 
     // create constructor to initialize context and data sent from SearchActivity
     public Adapter(Context context, List<Margarita> data) {
@@ -26,7 +26,7 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     // Inflate the layout when ViewHolder created
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) { //sukuria vaizdo laikytuva is container_corona.xml
         View view = inflater.inflate(R.layout.container_margarita, parent, false);
         MyHolder holder = new MyHolder(view);
         return holder;
@@ -34,7 +34,7 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     // Bind data
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) { //kurdami konteineri i ji sudedame visus duomenis
         // Get current position of item in RecyclerView to bind data and assign values from list
         MyHolder myHolder = (MyHolder) holder;
 
@@ -54,7 +54,7 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public int getItemCount() {
         return data.size();
-    }
+    } //parodo, kiek is viso yra irasu
 
 
     class MyHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

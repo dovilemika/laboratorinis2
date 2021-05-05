@@ -63,7 +63,7 @@ public class User { //visada is didziosios, nes klase
 
 
     public String getUsernameForLogin() {
-        return this.sharedPreferences.getString(USERNAME_KEY, "");  //tarp kabuciu tuscia, toks formatas, bet grazins ne tuscia, o tai, ka irasys vartotojas (get atitinka grazinancia funkcija be parametru)
+        return this.sharedPreferences.getString(USERNAME_KEY, "");  //tarp kabuciu tuscia, toks formatas, bet grazins ne tuscia, o tai, ka irasys vartotojas
     }
 
     public void setUsernameForLogin(String username) {

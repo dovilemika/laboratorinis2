@@ -13,9 +13,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class JSON {
+public class JSON { //is URL gaunamas json ir atspausdinamas
 
-    private static String readAll(Reader rd) throws IOException {
+    private static String readAll(Reader rd) throws IOException { //vadinasi metodas
         StringBuilder sb = new StringBuilder();
         int cp;
         while ((cp = rd.read()) != -1) {
@@ -24,36 +24,63 @@ public class JSON {
         return sb.toString();
     }
 
-    public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
+// ilgas tekstas is API NUSKAITOMAS I String o is ten konvertuojamas i json oblejta
+    public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException { //vadinasi metodas, kuriuo kreipiames i url ir mums grazina json
         InputStream is = new URL(url).openStream();
-        try {
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));    //nuskaityti is kazkokiu srautu
-            String jsonText = readAll(rd);
-            JSONObject json = new JSONObject(jsonText);
-            return json;
-        } finally { //uzdaro ivedimo srautus
+        try { //i try dedamas kodas kuriame gali buti klaida
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));    //nuskaityti is kazkokiu srautu (IS URL LINKO)
+            String jsonText = readAll(rd); //grazinmas stringas
+            JSONObject json = new JSONObject(jsonText); //formuojamas json objektas
+            return json; //grazina json
+        } finally { //uzdaro ivedimo srautus. net jei klaida - srautas uzdaromas
             is.close();
         }
     }
-
-    public static ArrayList<Margarita> getList(JSONArray jsonArray) throws JSONException{
-        ArrayList<Margarita> margaritaList = new ArrayList<Margarita>();
+// sis metodas paims json objekta ir grazins masyva. istruakiame tik  mums reikiama info
+    public static ArrayList<Margarita> getList(JSONArray jsonArray) throws JSONException{ //metodo antraste, grazins sarasa, ArrayaList o ne visa json
+        ArrayList<Margarita> margaritaList = new ArrayList<Margarita>(); //sukureme klase, kur norime patalpintiklases Margarita objektus. margaritaList tai saraso pavadinimas
         //isimti data is JSON ir issaugoti corona objektu sarase (coronaList)
-        for (int i=0; i<jsonArray.length(); i++) {
-            JSONObject jsonObject = jsonArray.getJSONObject(i);
-            Margarita margarita = new Margarita(
+        for (int i=0; i<jsonArray.length(); i++) { //ciklas, kuris rodo tris salygas
+            JSONObject jsonObject = jsonArray.getJSONObject(i); //cia rodome, kad eisime per visa sarasa
+            Margarita margarita = new Margarita( //margarita konstruktorius susideda is 5 elementu, juos cia trauksime
               //public Margarita(int id, String name, String tags, String category, String glass)
-                    jsonObject.getString("idDrink"),
+                    jsonObject.getString("idDrink"), //idDrink rasome identiskai kaip json duomenyse parasyta
                     jsonObject.getString("strDrink"),
                     jsonObject.getString("strTags"),
                     jsonObject.getString("strCategory"),
                     jsonObject.getString("strGlass")
             );
-            margaritaList.add(margarita);
+            margaritaList.add(margarita); //eis per visus json sarase esancius objektus, juos paims ir konstruos Margaruta klases objekta
         }
 
         return margaritaList;
     }
+
+    public static JSONArray getJSONArray(JSONObject json) throws JSONException {//metodas
+        JSONArray jsonArray = json.getJSONArray("drinks");
+        return jsonArray; //jsonArray paims getList
+    }
+    //is visi saraso istrauks tik mums reikiamus gerimus
+    public static ArrayList<Margarita> getMargaritaListByQuery(ArrayList<Margarita> margaritaArrayList, String name) { //metodas, noresim gauti sarasa pagal kokteilio pavadinima. F-ja paims du parametrus - ArrayList, kokteil. pav. Grazins arrayList
+        ArrayList<Margarita> margaritaListByQuery = new ArrayList<Margarita>();
+        //eis per visa sarasa ir formuos reikiamus gerimus
+        for (Margarita margarita : margaritaArrayList) {
+            if (margarita.getName().contains(name)) { //contains metodas yra vienas is String metodu, kuris iesko zodzio dalies is ivesto getName
+                margaritaListByQuery.add(margarita);
+            }
+        }
+
+        return margaritaListByQuery;
+    }
+}
+
+
+
+
+
+
+
+    // _________________________________________________________________________________________________________________________________________________________
 
    // public static JSONArray getJSONArray(JSONObject jsonObject) throws JSONException{
         //pasalinama is JSON visa nereikalinga informacija (metaduomenys), paliekant tik covid19Stats masyva
@@ -70,16 +97,16 @@ public class JSON {
    //     return jsonArray;
   //  }
 
-    public static ArrayList<Margarita> getMargaritaByQuery(ArrayList<Margarita> margaritaArrayList, String coctailName) {
-        ArrayList<Margarita> margaritaListByCountry = new ArrayList<Margarita>();
-        for (Margarita margarita : margaritaArrayList) { //kaireje sukuriamas tos klases objektas, per kurios sarasa itegruojame (desineje)
-            if (margarita.getName().contains(coctailName)) { //contains vykdo paieska!!
-                margaritaListByCountry.add(margarita);
-            }
-        }
-        return margaritaListByCountry;
-    }
-}
+  //  public static ArrayList<Margarita> getMargaritaByQuery(ArrayList<Margarita> margaritaArrayList, String coctailName) {
+      //  ArrayList<Margarita> margaritaListByCountry = new ArrayList<Margarita>();
+      //  for (Margarita margarita : margaritaArrayList) { //kaireje sukuriamas tos klases objektas, per kurios sarasa itegruojame (desineje)
+       //     if (margarita.getName().contains(coctailName)) { //contains vykdo paieska!!
+        //        margaritaListByCountry.add(margarita);
+ //           }
+//        }
+ //       return margaritaListByCountry;
+  //  }
+//}
 
 
 

@@ -19,8 +19,8 @@
         special symbols (@._-). Email length: from 10 to 50 symbols.</string>
     <string name="register_invalid_password">Password can only contain lowercase, uppercase, numbers,
         special symbols (.!@_). Password length: from 5 to 20 symbols.</string>
-    <string name="search_loading_data">Please wait for Covid data</string>
     <string name="search_error_reading_data">Couldnt read data from API. For more information:</string>
     <string name="search_no_results">No results for this query: </string>
+    <string name="search_loading_data">Please wait for data to be displayed</string>
 
 </resources>

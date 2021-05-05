@@ -23,34 +23,31 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
-public class SearchActivity extends AppCompatActivity {
-    public static final String MARGARITA_API = "https://www.thecocktaildb.com/api/json/v1/1/search.php?s=Margarita";
+public class SearchActivity extends AppCompatActivity { //globalus kintamieji, aprasomi klases virsuje
+    public static final String MARGARITA_API = "https://www.thecocktaildb.com/api/json/v1/1/search.php?s=Margarita"; //kreikiames i url
     private ArrayList<Margarita> margaritaList = new ArrayList<Margarita>();
     //pasirasysim globalius kintamuosius:
     private RecyclerView recyclerView; //korteliu vaizdas
-    private Adapter adapter;  // tarpininkas tarp search activity ir xml
-    private ArrayList<Margarita> margaritaList = new ArrayList<Margarita>();
-
-
-    private SearchView searchView = null; // gal nereikia private
+    private Adapter adapter;  // tarpininkas tarp search activity ir xml. apjungia dvi klases
+    private SearchView searchView = null; // paieskos vaizdas
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
-        //bus paleidziama nauja gija (thread) - JSONo nuskaitymui is API
-        AsyncFetch asyncFetch = new AsyncFetch();   //kuriames klase
-        asyncFetch.execute();
+        //bus paleidziama nauja gija (thread) - JSONO nuskaitymui is API
+        AsyncFetch asyncFetch = new AsyncFetch();   //kuriames klase- AsyncFetch
+        asyncFetch.execute(); //execute iskviecia metotus, sukurtus toje AsyncFetch klaseje
     }
 
     // cia ikopinom mokytojo koda =========================================================
     @Override
     public boolean onCreateOptionsMenu(Menu menu) { //suteikiam vartotojui galimybe irasyti paieskoje
         // adds item to action bar
-         getMenuInflater().inflate(R.menu.search, menu);
-         //Get Search item from action bar and Get Search service
-        MenuItem searchItem = menu.findItem(R.id.action_search);
+        getMenuInflater().inflate(R.menu.search, menu); // search.xml
+        //Get Search item from action bar and Get Search service
+        MenuItem searchItem = menu.findItem(R.id.action_search); //vartotojas irasys paieskos zodi
 
         SearchManager searchManager = (SearchManager) SearchActivity.this.getSystemService(Context.SEARCH_SERVICE);
 
@@ -62,7 +59,6 @@ public class SearchActivity extends AppCompatActivity {
             searchView.setIconified(false);
         }
         return true;
-
     }
 
 
@@ -74,7 +70,7 @@ public class SearchActivity extends AppCompatActivity {
 
     @Override
 
-    protected void onNewIntent(Intent intent) {
+    protected void onNewIntent(Intent intent) { //vykdoma paieskos funkcija
         super.onNewIntent(intent);
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY); //tai, ka vartyotojas suvede i meniu juosta, jei ives pvz Italija tai QUERY BUS Italija
@@ -83,7 +79,7 @@ public class SearchActivity extends AppCompatActivity {
             }
 
             //is visu kokteiliu saraso sukuriamas sarasas pagal vertotoja ieskoma kokteili (QUERY)
-            ArrayList<Margarita> margaritaListByCountry = JSON.getMargaritaByQuery(margaritaList, query);
+            ArrayList<Margarita> margaritaListByQuery = JSON.getMargaritaListByQuery(margaritaList, query);
 
             if (margaritaList.size() == 0) {
                 Toast.makeText(this, getResources().getString(R.string.search_no_results) + query, Toast.LENGTH_SHORT).show();
@@ -98,86 +94,56 @@ public class SearchActivity extends AppCompatActivity {
         }
     }
 
-
-
-    private class AsyncFetch extends AsyncTask<String, String, JSONObject> {    //privati klase, ji yra vidine; lygiagrecios klases gali buti privacios
-        ProgressDialog progressDialog = new ProgressDialog(SearchActivity.this);
+    private class AsyncFetch extends AsyncTask<String, String, JSONObject> {    //privati klase, ji yra vidine; lygiagrecios klases gali buti privacios. naudojama ne sbu dvi lygiagrecios uzduotys
+        ProgressDialog progressDialog = new ProgressDialog(SearchActivity.this); //nurodome kad jis bus , suksis, search activity lange
 
         @Override
         protected void onPreExecute() { //sis metodas bus vykdomas pries do it background. Paprasysime vartotojo palaukti, kol gausime duomenis is API (bus besisukantis vaizdas)
             super.onPreExecute();
             progressDialog.setMessage(getResources().getString(R.string.search_loading_data));
             progressDialog.setCancelable(false);    //turi islaukti kol gris kazkokia informacija
-            progressDialog.show();  //kad matytu vaizda
+            progressDialog.show();  //kad matytu vaizda, bus rodomas besisukantis
         }
 
-        @Override   // Jis skirtas gavimui JSON is API
-        protected JSONObject doInBackground(String... strings) {    //jis bus vykdomas tuo metu, kai vartotojas matys besisukanti (progress) dialoga.
-            try {
-                JSONObject jsonObject = JSON.readJsonFromUrl(MARGARITA_API); //sioje vietoje perduosime URL
-                return jsonObject;
-            } catch (IOException e) {
-                Toast.makeText(
-                        SearchActivity.this,
-                        getResources().getString(R.string.search_error_reading_data) + e.getMessage(),
+        @Override
+        //kol sukasi rutuliukas, gauname duomenis is url
+        protected JSONObject doInBackground(String... strings) { //vykdoma kai vartotojas mato besisukanti dialoga (progressDialog)
+            try { //try yra blogas, kuriame gali buti klaidu, bet procesas nenutruks
+                JSONObject jsonObject = JSON.readJsonFromUrl(MARGARITA_API); //pasikreipiame i klase Json.java ir  perduodame URL
+                return jsonObject; //Jei viskas gerai, grazinsime jsonObject
+            } catch (IOException e) { //input output exception tai ivedimo, isvedimo isimtys
+                Toast.makeText(SearchActivity.this,
+                        getResources().getString(R.string.search_error_reading_data) + e.getMessage(), //ismesime pranesima apie klaida, per getMessage  pateiksime papildomos informacijos
                         Toast.LENGTH_LONG
                 ).show();
             } catch (JSONException e) {
-                Toast.makeText(
-                        SearchActivity.this,
+                Toast.makeText(SearchActivity.this,
                         getResources().getString(R.string.search_error_reading_data) + e.getMessage(),
                         Toast.LENGTH_LONG
                 ).show();
             }
-            return null;
-        }
-      //  }   //doInBackground pabaiga
+            return null; //null - tai kia nieko nera
+        } // baigiasi doInBackground metodas
 
-      //  @Override
-     //   protected void onPostExecute(JSONObject jsonObject) {    //execute atitinka doInBackgroundA
-      //      progressDialog.dismiss();
+        @Override
+        protected void onPostExecute(JSONObject jsonObject) { //onPostExecute - padaryk kazka po. Execute atitinka doInBackground
+            progressDialog.dismiss(); //gavome duomenis is background, todel panaikiname besisukanti dialoga
 
-          //  int statusCode = 0;
-        //      try {
-          //      statusCode = jsonObject.getInt("statusCode");
-           // } catch (JSONException e) {
-          //      Toast.makeText(
-            //            SearchActivity.this,
-         //               getResources().getString(R.string.search_error_reading_data) + e.getMessage(),
-          //              Toast.LENGTH_LONG
-            //    ).show();
-          //  }
-         //   if(statusCode == HttpURLConnection.HTTP_OK) {
-                //System.err.println(jsonObject.toString());   //spausdina terminala, pasitikrinimui; bandys spausdinti kaip klaida, kita spalva
-             //   JSONArray jsonArray = null;
-               // try {
-               //     jsonArray = JSON.getJSONArray(jsonObject);
-                //    margaritaList = JSON.getList(jsonArray);
 
-             //   } catch (JSONException e) {
-              //      System.out.println(getResources().getString(R.string.search_error_reading_data) + e.getMessage());
-             //   }
+            JSONArray jsonArray = null;
+            try {
+                jsonArray = JSON.getJSONArray(jsonObject); //is JSON object suformuoja JSON Array
+                margaritaList = JSON.getList(jsonArray);
 
-            // else {   // kazkas nepavyko (serveris negrazino 200 code)
-          //    String message = null;
-           //     try {
-            //        message = jsonObject.getString("message");
-           //     } catch (JSONException e) {
-           //         Toast.makeText( //cia apdorojame JSON exceptiona
-              //              SearchActivity.this,
-             //               getResources().getString(R.string.search_error_reading_data) + e.getMessage(),
-              //              Toast.LENGTH_LONG
-              //      ).show();
-             //   }
-              //  Toast.makeText( //sioje vietoje jau perduodame zinute
-                  //      SearchActivity.this,
-                   //     getResources().getString(R.string.search_error_reading_data) + e.getMesssage,   //KAS CIA???
-                //        Toast.LENGTH_LONG
-             //   ).show();
-         //   }   //baigiasi else
-      //  }   //baigiasi onPostExecute
-  //  }   //baigiasi AsyncFetch klase
+            } //catch (JSONException e) {
 
-    //sioje vietoje gales buti kazkokie metodai
+            catch (JSONException e) { //toliau apdoroma zinute JSON exeption. Catch suranda klaida ir ja isspausdina
+                Toast.makeText(SearchActivity.this,
+                        getResources().getString(R.string.search_error_reading_data) + e.getMessage(), //ismesime pranesima apie error'a, getMessage - pateiksime papildomos info
+                        Toast.LENGTH_LONG
+                ).show();
+            } //baigiasi catch
+        } //baigiasi onpostexecute
+    } //baigiasi AsyncFetch klase
+}//baigiasi searchactivity klase
 
-//}   //baigiasi SearchActivity java class
